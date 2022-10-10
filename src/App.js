@@ -17,7 +17,18 @@ import data from './data'
 import { useState, createContext, useContext, useEffect } from 'react';
 import HeaderComp from './Components/HeaderComponent';
 import Admin from './Admin/Admin';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
+
+import { auth } from "./Authentication/firebase-config";
+import PrivateRoute from './PrivateRoute/PrivateRoute';
+import PrivateRouteCO from './PrivateRoute/PrivateRouteCO';
 export const UserContext = createContext();
+
 // const CartContext = createContext();
 function App() {
   const [Loggedin,setLoggedin]=useState()
@@ -81,7 +92,21 @@ function App() {
 
   console.log(WListItems)
 
+  onAuthStateChanged(auth, (currentUser) => {
+    console.log(currentUser.email);
+    setLoggedin(currentUser);
+  });
+  console.log(Loggedin)
 
+  const [DataPwd,setDataPwd]=useState([])
+  useEffect(()=>{async function fetchDataPwd() {
+    fetch('http://localhost:300/Products')          
+    .then(response => response.json())
+    .then(data =>{ setDataPwd(data)});
+  }
+  fetchDataPwd();}
+  ,[DataPwd])
+  console.log(DataPwd)
   return (
     <UserContext.Provider  value={[Loggedin,setLoggedin,cartItems,BuyNow,cartBool,setCartBool,addWishList,removeWishList,addToCart]}>
      
@@ -89,24 +114,28 @@ function App() {
           
       <Routes>
 
-        <Route path="/" element={<Homepage products={products} addToCart={addToCart} addWishList={addWishList} removeWishList={removeWishList} />} />
+        <Route path="/" element={<Homepage DataPwd={DataPwd} addToCart={addToCart} addWishList={addWishList} removeWishList={removeWishList} />} />
         <Route path="about" element={<About />} />
         <Route path="gallery" element={<Gallery />} />
         <Route path="contact" element={<Contackt />} />
-        <Route path=":id" element={<ShopDetail products={products} addToCart={addToCart} setBuyQty={setBuyQty} BuyNowFunction={BuyNowFunction}/>} />
+        <Route path=":id" element={<ShopDetail products={DataPwd} addToCart={addToCart} setBuyQty={setBuyQty} BuyNowFunction={BuyNowFunction}/>} />
         <Route path="shop" element={<Shop/> } />
         <Route path="wishList" element={<Wishlist WListItems={WListItems} addToCart={addToCart} removeWishList={removeWishList}/>} />
         <Route element={<Cart addToCart={addToCart} removeFromCart={removeFromCart}  cartItems={cartItems} CartBoolFunction={CartBoolFunction}/>} path="/cart" />
 
         <Route element={<PrivateRoutes User={Loggedin} />}>
-
                 <Route element={<Checkout BuyQty={BuyQty} setBuyQty={setBuyQty}/>} path="checkOut"/>
                 <Route element={<MyAcount/>} path="myAcount"/>
         </Route>
-        
-        <Route path="login" element={<Authentication />} />
+
+        <Route element={<PrivateRoute User={Loggedin} />}>
         <Route path="admin" element={<Admin />} />
-       
+        </Route>
+
+        <Route path="login" element={<Authentication />} />
+        {/* <Route element={<PrivateRouteCO User={Loggedin} />}>
+        <Route element={<MyAcount/>} path="myAcount"/>
+        </Route> */}
       </Routes>
       </Router>
        </UserContext.Provider>

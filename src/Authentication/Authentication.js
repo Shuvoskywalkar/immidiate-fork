@@ -38,11 +38,8 @@ function Authentication(params) {
     password:"",
     Address:""
   });
-  // console.log(user)
-  onAuthStateChanged(auth, (currentUser) => {
-    console.log(currentUser);
-    setLoggedin(currentUser);
-  });
+
+
 let name,value;  
 const changeFunc=(event)=>{
 name=event.target.name;
@@ -64,7 +61,7 @@ try {
     Email,
     password
   );
-  setLoggedin(user.user.email);
+  // setLoggedin(user.user.email);
   console.log(user);
   localStorage.setItem('User',`${user.user.email}`);
 } catch (error) {
@@ -93,7 +90,9 @@ try {
   Address:"",
   Email:"",
   password:""
- })   
+ })
+//  navigate(-1);
+   
   }
 
 
@@ -109,10 +108,10 @@ const navigate = useNavigate();
         Email,
         password
       );
-      setLoggedin(user.user.email);
-      navigate(-1);
+      // setLoggedin(user.user.email);
+      // navigate(-1);
       // alert('Congratulations! You are logged in...Please refresh or Go back to the preveious page ') 
-      // localStorage.setItem("User",`${user.user.email}`)
+      localStorage.setItem("User",`${user.user.email}`)
       console.log(user.user.email);
     } catch (error) {
       console.log(error.message);
@@ -121,10 +120,12 @@ const navigate = useNavigate();
 
   const logout = async () => {
     await signOut(auth);
+    localStorage.setItem('User', null)
   };
 
+  // console.log(user)
 
-
+  // console.log(Loggedin)
     return(
         <>
        <header class="main-header ">

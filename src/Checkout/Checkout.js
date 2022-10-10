@@ -19,7 +19,7 @@ import { useState, useEffect } from 'react';
     const[Loggedin,setLoggedin,cartItems,BuyNow,cartBool] =React.useContext(UserContext);
     console.log(cartBool)
  
-    const[buyerData,setbuyerData]=useState([])
+    
  
 
      
@@ -125,20 +125,20 @@ import { useState, useEffect } from 'react';
       
 
     }
-    useEffect(()=>{
-        
-        async function fetchData() {
+    // useEffect(()=>{
+        const[buyerData,setbuyerData]=useState({})
+        // async function fetchData() {
         fetch(`http://localhost:300/User/getone/${Loggedin.email}`)
         .then((res)=>res.json())
-        .then((result)=>{setbuyerData(result) ; console.log(result)})
-      }
+        .then((result)=>{setbuyerData(result.user[0]) ; console.log(result)})
+    //   }
 
      
-      fetchData();
-    }
-      ,[0])
+    //   fetchData();
+    // }
+    //   ,[Loggedin])
 
-      console.log(buyerData.user[0])
+      console.log(buyerData)
     return (
         <div>
 
@@ -177,18 +177,18 @@ import { useState, useEffect } from 'react';
                 <input type="text" name="to_name" class="form-control" defaultValue={Loggedin.displayName || Loggedin.email}/>
                 
                 </div>
-                {/* <div class="form-group">
+                <div class="form-group">
                 <label >Enter Reciver's <b>phone Number</b></label>
                 <input type="text" name="Reciver_Phone" class="form-control" 
-                defaultValue={buyerData.user[0].MobileNumber}  
+                defaultValue={buyerData.MobileNumber}  
                 />
                 </div>
                 <div class="form-group">
                     <label >Enter the <b>delivery Address</b></label>
                     <textarea name="Address" class="form-control" id="exampleFormControlTextarea1" rows="3" 
-                    defaultValue={buyerData.user[0].Address}
+                    defaultValue={buyerData.Address}
                     ></textarea>
-                </div> */}
+                </div>
                 {/* <label>enter Your Billing Address</label>
                 <textarea name="Address" className='' /> */}
                 <input type="text" name="Subtotal" className='d-none' value={cartBool==true ? totalPriceBuy : totalPrice.toFixed(2)} />

@@ -3,9 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCamera, faCoffee,faPlus,faUserCog, faUserShield,faPaperPlane,faPencilAlt } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react';
 // import {FormData} from "formdata-node"
-
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import { Link } from "react-router-dom";
+import Swal from 'sweetalert2';
 const Admin = () => {
-
+const [clicked,setClicked]=useState(false)
+// const []
   
 const [Data,setData]=useState([])
 useEffect(()=>{async function fetchData() {
@@ -16,6 +20,15 @@ useEffect(()=>{async function fetchData() {
 fetchData();}
 ,[Data])
 
+const [cats,setCats]=useState([])
+useEffect(()=>{async function fetchData() {
+  fetch('http://localhost:300/Category/getAllCategories')
+  .then(res=>res.json())
+  .then(result=>setCats(result.content))
+}
+fetchData();}
+,[cats])
+console.log(cats)
 
 const removeUser= async (item)=>{
   await fetch(`http://localhost:300/User/${item}`, {
@@ -25,7 +38,15 @@ const removeUser= async (item)=>{
     }
 })
 .then((res)=>res.json())
-.then((result)=>{console.log(result.content)})
+.then((result)=>{console.log(result.content);
+  Swal.fire({
+    position: 'top-end',
+    icon: 'success',
+    title: 'this DATA has been DELETED',
+    showConfirmButton: false,
+    timer: 1500
+  })
+})
 }
     
 const [DataPwd,setDataPwd]=useState([])
@@ -46,7 +67,13 @@ const [DataPwd,setDataPwd]=useState([])
       }
   })
   .then((res)=>res.json())
-  .then((result)=>{console.log(result.content)})
+  .then((result)=>{console.log(result.content); Swal.fire({
+    position: 'top-end',
+    icon: 'success',
+    title: 'this DATA has been DELETED',
+    showConfirmButton: false,
+    timer: 1500
+  })})
   }
 
 
@@ -56,49 +83,50 @@ const [DataPwd,setDataPwd]=useState([])
 
   const UpdateProductModal= (item)=>{
     console.log(item) ;
-  //   await fetch(`http://localhost:300/Products/${item._id}`
-  //   // , {
-  //     // method: 'DELETE',
-  //     // headers: {
-  //     //     'Content-type': 'application/json'
-  //     // }
-  // // }
-  // )
-  // .then((res)=>res.json())
-  // .then((result)=>{   ;console.log(result)})
   setPwd(item)
     setBool(true);
   setpwd(item._id)
   
   }
-console.log(Pwd,pwd,bool)
-
+// console.log(Pwd,bool)
 const UpdateProduct= async  (e)=>{
   e.preventDefault();
-    const{Name,price,InitialStock,DelPrice,Category,Description,image,sold,CategoryName,GalleryImgUrl,GalleryImgName}=value
- console.log(pwd)
-      await fetch(`http://localhost:300/Products/${pwd}`, {
+  setClicked(true)
+    const{Name,price,InitialStock,DelPrice,Category,Description,image,sold,CategoryName,GalleryImgUrl,GalleryImgName,imagesZero,imagesOne,imagesTwo}=value
+    const images = [{imagesOne:imagesOne,imagesZero:imagesZero,imagesTwo:imagesTwo}]
+    console.log(imagesOne,imagesZero,imagesTwo)
+    console.log(images)
+    //  console.log()
+      await fetch(`http://localhost:300/Products/${Pwd._id}`, {
       method: 'PATCH',
       headers: {
           'Content-type': 'application/json'
       },
       body:JSON.stringify({
-        name:Name,price:price,InitialStock:InitialStock,DelPrice:DelPrice,Category:Category,Description:Description,image:image,sold:sold
+        name:Name,price:price,InitialStock:InitialStock,DelPrice:DelPrice,Category:Category,Description:Description,image:image,sold:sold,images:images
       })
-
+      // ,images:[{imagesOne:imagesOne,imagesZero:imagesZero,imagesTwo:imagesZero}]
   })
   .then((res)=>res.json())
-  .then((result)=>{console.log(result)})
+  .then((result)=>{console.log(result);setClicked(false); Swal.fire({
+    position: 'top-end',
+    icon: 'success',
+    title: 'Your DATA has been POSTED',
+    showConfirmButton: false,
+    timer: 1500
+  })})
   
   
   }
 
+
+  
     var FormData = require('form-data');
     const [value,setValue]=useState({})
     const [file,setfile]=useState({
       
     })
-    const [data,setdata]=useState({})
+
    const blurHandler=(e)=>{
   const VALUE={...value}
   VALUE[e.target.name]=e.target.value
@@ -110,41 +138,49 @@ const UpdateProduct= async  (e)=>{
       console.log(file)
       setfile(file)
   }
-  const{Name,price,InitialStock,DelPrice,Category,Description,image,CategoryName,GalleryImgUrl,GalleryImgName}=value
+  const{Name,price,InitialStock,DelPrice,Category,Description,image,CategoryName,GalleryImgUrl,GalleryImgName,images}=value
 
   const[error,seterror]=useState(false)
-  console.log(Name,price,InitialStock,DelPrice,Category,Description,image,CategoryName)
-  var form = new FormData();
-       form.append('name','some')
-   form.append('price','data')
-  console.log(form)
+  console.log(Name,price,InitialStock,DelPrice,Category,Description,image,CategoryName,images)
+
   
 const submitHandler= async (e ) =>{
   e.preventDefault();
-  const{Name,price,InitialStock,DelPrice,Category,Description,image}=value
- 
+  setClicked(true)
+  // const{Name,price,InitialStock,DelPrice,Category,Description,image,images}=value;
+  const{Name,price,InitialStock,DelPrice,Category,Description,image,sold,CategoryName,GalleryImgUrl,GalleryImgName,imagesZero,imagesOne,imagesTwo}=value
+  const images = [imagesOne,imagesZero,imagesTwo]
+  console.log(images)
    const res = await fetch('http://localhost:300/Products',{
     method:'POST',
     headers:{
     'Content-Type':'application/json'
     },
     body:JSON.stringify({
-      name:Name,price:price,InitialStock:InitialStock,DelPrice:DelPrice,Category:Category,Description:Description,image:image,sold:0
+      name:Name,price:price,InitialStock:InitialStock,DelPrice:DelPrice,Category:Category,Description:Description,image:image,sold:0,images:images
     })
 
   })
    
   if (res) {
- setValue({})  
- console.log(res) 
+//  setValue({})  
+ setClicked(false)
+//  console.log(res) 
+Swal.fire({
+  position: 'top-end',
+  icon: 'success',
+  title: 'Your DATA has been POSTED',
+  showConfirmButton: false,
+  timer: 1500
+})
   }
 
 }
 
 const categroySubmit= async (e)=>{
   e.preventDefault();
-  const{Name,price,InitialStock,DelPrice,Category,Description,image,CategoryName,GalleryImgUrl,GalleryImgName}=value
-  
+  // const{Name,price,InitialStock,DelPrice,Category,Description,image,CategoryName,GalleryImgUrl,GalleryImgName}=value
+  setClicked(true);  
    const res = await fetch('http://localhost:300/Category',{
     method:'POST',
     headers:{
@@ -157,16 +193,25 @@ const categroySubmit= async (e)=>{
   })
    
   if (res) {
- setValue({})  
- console.log(res) 
+//  setValue({})  
+ setClicked(false)
+ Swal.fire({
+  position: 'top-end',
+  icon: 'success',
+  title: 'Your DATA has been POSTED',
+  showConfirmButton: false,
+  timer: 1500
+})
+//  console.log(res11) 
   }
 }
 
 
 const GallerySubmit= async (e)=>{
   e.preventDefault();
+  setClicked(true);
   const{Category,imgnamegallary,imageurlgallary}=value
-  console.log(Category,imgnamegallary,imageurlgallary)
+  // console.log(Category,imgnamegallary,imageurlgallary)
    const res = await fetch('http://localhost:300/Gallery',{
     method:'POST',
     headers:{
@@ -179,26 +224,43 @@ const GallerySubmit= async (e)=>{
   })
    
   if (res) {
- setValue({})  
- console.log(res) 
+//  setValue({})  
+ setClicked(false)
+ Swal.fire({
+  position: 'top-end',
+  icon: 'success',
+  title: 'Your DATA has been POSTED',
+  showConfirmButton: false,
+  timer: 1500
+})
+
+//  console.log(res) 
   }
 }
 
 
+const [show, setShow] = useState(false);
 
+const handleClose = () => setShow(false);
+const handleShow = (x) => {setShow(true); setPwd(x);    setBool(true);
+};
+const towfunc =()=>{
+  localStorage.setItem('User', null) 
+   window.location.reload(false)
+}
     return (
         <div>
            <>
     
     <header className="navbar navbar-dark sticky-top bg-dark flex-md-nowrap px-5 py-3 shadow">
-      <a className="navbar-brand col-md-3 col-lg-2 text-center text-md-left me-0 px-3" href="#">Koiri Shop</a>
+      <Link  className="navbar-brand col-md-3 col-lg-2 text-center text-md-left me-0 px-3" to="/">Koiri Shop</Link>
       <button className="navbar-toggler  d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span className="navbar-toggler-icon"></span>
       </button>
       {/* <input className="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"/> */}
       <div className="navbar-nav">
         <div className="nav-item text-nowrap">
-          <a className="nav-link px-3" href="#">Sign out</a>
+          <a className="nav-link px-3" href="#" onClick={towfunc}>Sign out</a>
         </div>
       </div>
     </header>
@@ -255,7 +317,7 @@ const GallerySubmit= async (e)=>{
         <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
           <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 className="h2">Dashboard</h1>
-            <div className="btn-toolbar mb-2 mb-md-0">
+            {/* <div className="btn-toolbar mb-2 mb-md-0">
               <div className="btn-group me-2">
                 <button type="button" className="btn btn-sm btn-outline-secondary">Share</button>
                 <button type="button" className="btn btn-sm btn-outline-secondary">Export</button>
@@ -264,7 +326,7 @@ const GallerySubmit= async (e)=>{
                 <span data-feather="calendar"></span>
                 This week
               </button>
-            </div>
+            </div> */}
           </div>
     
           {/* <canvas className="my-4 w-100" id="myChart" width="900" height="380"></canvas> */}
@@ -274,52 +336,70 @@ const GallerySubmit= async (e)=>{
   <div class="form-row">
     <div class="form-group col-md-6">
       <label for="inputEmail4">Product Name</label>
-      <input onBlur={blurHandler} defaultvalue={Name} type="text" class="form-control" id="" name='Name' placeholder="Product Name"/>
+      <input onBlur={blurHandler} defaultvalue={Name} type="text" class="form-control" id="" name='Name' placeholder="Product Name" required/>
     </div>
     <div class="form-group col-md-3">
       <label for="inputPassword4">Product <del>Price</del></label>
-      <input onBlur={blurHandler} type="number" class="form-control" id="" name='DelPrice' placeholder="del Price"/>
+      <input onBlur={blurHandler} type="number" class="form-control" id="" name='DelPrice' placeholder="del Price" required/>
     </div>
     <div class="form-group col-md-3">
       <label for="inputPassword4">Product Price</label>
-      <input onBlur={blurHandler} type="number" class="form-control" id="inputPassword4" name='price' placeholder="Price"/>
+      <input onBlur={blurHandler} type="number" class="form-control" id="inputPassword4" name='price' placeholder="Price" required/>
     </div>
   </div>
   <div class="form-group">
     <label for="inputAddress">Product Description</label>
-    <textarea onBlur={blurHandler} class="form-control" id="exampleFormControlTextarea1" rows="3" name='Description' style={{height:"100%"}}></textarea>
+    <textarea onBlur={blurHandler} class="form-control" id="exampleFormControlTextarea1" rows="3" name='Description' style={{height:"100%"}} required></textarea>
       </div>
   <div class="form-group">
     <label for="inputAddress2">Category</label>
-    <select onBlur={blurHandler} name='Category' id="inputState" class="form-control">
-        <option selected>63346d6dbe4f2e8bbb404514</option>
-        <option>...</option>
+    <select onBlur={blurHandler} name='Category' id="inputState" class="form-control" required>
+       {cats.map((c)=>
+        <option value={c._id}>{c.name}</option>
+        )}
       </select>  </div>
   <div class="form-row">
     <div class="form-group col-md-4">
       <label for="inputCity">Initial Stock</label>
-      <input onBlur={blurHandler} name='InitialStock' type="number" class="form-control" id="inputCity" placeholder='How many pieces do I have of these ?'/>
+      <input onBlur={blurHandler} name='InitialStock' type="number" class="form-control" id="inputCity" placeholder='How many pieces do I have of these ?' required/>
     </div>
     <div class="form-group col-md-4">
       <label for="inputState">Product Image</label>
-      <input  onBlur={blurHandler} name='image' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Url '/>
+      <input  onBlur={blurHandler} name='image' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Url ' required/>
     </div>
-    <div class="form-group col-md-4">
-      <label for="inputState">Product Images array</label>
-      <input onBlur={blurHandler} name='images' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Urls (three image is needed) '/>
+    <div class="form-group col-md-7">
+      <label for="inputState">Product Images array[0]</label>
+      <input onBlur={blurHandler} name='imagesZero' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Urls (three image is needed) '  required/>
+    </div>
+    <div class="form-group col-md-7">
+      <label for="inputState">Product Images array[1]</label>
+      <input onBlur={blurHandler} name='imagesOne' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Urls (three image is needed) '  required/>
+    </div>
+    <div class="form-group col-md-7">
+      <label for="inputState">Product Images array[2]</label>
+      <input onBlur={blurHandler} name='imagesTwo' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Urls (three image is needed) '  required/>
     </div>
   </div>
 
-  <button type="submit" class="btn btn-secondary text-center my-3">Post the Product <FontAwesomeIcon icon={faPaperPlane}/></button>
+  <button type="submit" class="btn btn-secondary text-center my-3">Post the Product 
+  {clicked ? 
+        <b><i class="fas fa-spinner fa-pulse text-info font-weight-bolder"></i></b>
+:
+  <FontAwesomeIcon icon={faPaperPlane}/>
+    }  </button>
 </form>
         </div>
      <div className=' d-block d-md-flex justify-content-center align-items-center'>
         <form class="form-inline my-4 text-center" onSubmit={categroySubmit}>
         <div class="form-group mx-sm-3 mb-2">
           <label for="CategoryPost" class="sr-only">Category</label>
-          <input onBlur={blurHandler} type="text" class="form-control" id="" name='CategoryName' placeholder="Post a Category"/>
+          <input onBlur={blurHandler} type="text" class="form-control" id="" name='CategoryName' placeholder="Post a Category" required/>
         </div>
-        <button type="submit" class="btn btn-secondary mb-2">Post a Category</button>
+        <button type="submit" class="btn btn-secondary mb-2">Post a Category     
+        {clicked && 
+        <b><i class="fas fa-spinner fa-pulse text-info font-weight-bolder"></i></b>
+}
+</button>
         </form>
         </div>
 
@@ -327,22 +407,25 @@ const GallerySubmit= async (e)=>{
         <form onSubmit={GallerySubmit}>
   <div class="form-group">
     <label for="exampleInputEmail1">Image Url</label>
-    <input  onBlur={blurHandler} type="text" name="imageurlgallary" class="form-control"  placeholder="Enter image url"/>
+    <input  onBlur={blurHandler} type="text" name="imageurlgallary" class="form-control"  placeholder="Enter image url" required/>
     {/* <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> */}
   </div>
   <div class="form-group">
     <label for="exampleInputEmail1">Image Name</label>
-    <input  onBlur={blurHandler} type="text" name="imgnamegallary" class="form-control"  placeholder="Enter image name"/>
+    <input  onBlur={blurHandler} type="text" name="imgnamegallary" class="form-control"  placeholder="Enter image name" required/>
     {/* <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> */}
   </div>
   <div class="form-group">
     <label for="inputAddress2">Category</label>
-    <select onBlur={blurHandler} name='Category' id="inputState" class="form-control">
-        <option >...</option>
-        <option >63346d6dbe4f2e8bbb404514</option>
+    <select onBlur={blurHandler} name='Category' id="inputState" class="form-control" required>
+    {cats.map((c)=>
+        <option value={c._id}>{c.name}</option>
+        )}
       </select>  </div>
  
-  <button type="submit" class="btn btn-secondary px-3 py-2">Post GalleryImg</button>
+  <button type="submit" class="btn btn-secondary px-3 py-2">Post GalleryImg        {clicked && 
+        <b><i class="fas fa-spinner fa-pulse text-info font-weight-bolder"></i></b>
+}</button>
 </form>
 
           <h2 class="mt-5">List of Users</h2>
@@ -409,7 +492,7 @@ const GallerySubmit= async (e)=>{
                   <i onClick={() => removeProduct(x._id)} class="fas fa-minus "></i>
                   </td>
                   <td data-toggle="modal" data-target="#exampleModal">
-                    <FontAwesomeIcon icon={faPencilAlt} onClick={() =>  UpdateProductModal(x)}/>
+                    <FontAwesomeIcon icon={faPencilAlt} onClick={()=>handleShow(x)}/>
                   </td>
                   </tr>
 )}
@@ -418,8 +501,91 @@ const GallerySubmit= async (e)=>{
             </table>
           </div>
 
+          <>
+      {/* <Button variant="primary" >
+        Launch demo modal
+      </Button> */}
+{bool? 
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header >
+          <Modal.Title><h4>Update the Product 
+            {/* <br/> <b>{Pwd.name}</b> */}
+            </h4></Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          
+        <section >
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="inputEmail4">Update the Product </label>
+      {console.log(Pwd.images[0])}
+      <input onBlur={blurHandler}  type="text" class="form-control" id="" name='Name'  defaultValue={Pwd.name} required/>
+    </div>
+    <div class="form-group col-md-3">
+      <label for="inputPassword4">Product <del>Price</del></label>
+      <input onBlur={blurHandler}  type="number" class="form-control" id="" name='DelPrice' defaultValue={Pwd.DelPrice} required/>
+    </div>
+    <div class="form-group col-md-3">
+      <label for="inputPassword4">Product Price</label>
+      <input onBlur={blurHandler}  type="number" class="form-control" id="inputPassword4" name='price' placeholder="Price" defaultValue={Pwd.price} required/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputAddress">Product Description</label>
+    <textarea onBlur={blurHandler}  class="form-control" id="exampleFormControlTextarea1" rows="3" name='Description' style={{height:"100%"}} defaultValue={Pwd.Description} required></textarea>
+      </div>
+  <div class="form-group">
+    <label for="inputAddress2">Category</label>
+    <select onBlur={blurHandler}  name='Category' id="inputState" class="form-control" required>
+    {cats.map((c)=>
+        <option value={c._id}>{c.name}</option>
+        )}
+        <option value={Pwd.Category._id} selected>{Pwd.Category.name}</option>
+      </select>  </div>
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <label for="inputCity">Initial Stock</label>
+      <input onBlur={blurHandler}  name='InitialStock' type="number" class="form-control" id="inputCity" placeholder='How many pieces do I have of these ?' defaultValue={Pwd.InitialStock} required/>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="inputState">Product Image</label>
+      <input  onBlur={blurHandler}  name='image' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Url ' defaultValue={Pwd.image} required/>
+    </div>
+    <div class="form-group col-md-7">
+      <label for="inputState">Product Images array[0]</label>
+      <input onBlur={blurHandler} name='imagesZero' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Urls (three image is needed) ' defaultValue={Pwd.images[0]} required/>
+    </div>
+    <div class="form-group col-md-7">
+      <label for="inputState">Product Images array[1]</label>
+      <input onBlur={blurHandler} name='imagesOne' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Urls (three image is needed) ' defaultValue={Pwd.images[1]} required/>
+    </div>
+    <div class="form-group col-md-7">
+      <label for="inputState">Product Images array[2]</label>
+      <input onBlur={blurHandler} name='imagesTwo' type="text" class="form-control" id="inputCity" placeholder='Enter your pdoduct image Urls (three image is needed) ' defaultValue={Pwd.images[2]}  required/>
+    </div>
+  </div>
 
-{bool?  
+  <a  onClick={UpdateProduct}  class="btn btn-secondary text-center my-3 px2 py-3 font-weight-bold">Update the Product 
+  {clicked ? 
+        <b><i class="fas fa-spinner fa-pulse text-info font-weight-bolder"></i></b>
+:
+  <FontAwesomeIcon icon={faPaperPlane}/>
+  }</a></section>
+
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          {/* <Button variant="primary" onClick={handleClose}>
+            Save Changes
+          </Button> */}
+        </Modal.Footer>
+      </Modal>
+: null}
+</>
+
+{/* {bool?  
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -479,7 +645,7 @@ const GallerySubmit= async (e)=>{
     </div>
   </div>
 </div>
-:null}
+:null} */}
 
         </main>
       </div>

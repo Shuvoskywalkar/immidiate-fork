@@ -4,6 +4,9 @@ import { UserContext } from '../App';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import data from '../../src/data'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faCoffee,faPlus,faUserCog, faUserShield,faPaperPlane,faPencilAlt,faCancel } from '@fortawesome/free-solid-svg-icons'
+
 export default function HeaderComp(props) {
     const[Loggedin,setLoggedin,cartItems]=useContext(UserContext)
     console.log(data);
@@ -12,41 +15,19 @@ export default function HeaderComp(props) {
     const [smShow, setSmShow] = useState(false);
     const [lgShow, setLgShow] = useState(false);
 
-
-         var input, filter, ul, li, a, i, txtValue;
-    
-        
-       
-        // const myContainer = useRef(null);
-        // const myUL = useRef(null);
-        //  filter = myContainer.current.value.toUpperCase();
-        // li = myUL.getElementsByTagName("li");
-
-         // for (i = 0; i < li.length; i++) {
-        //     a = li[i].getElementsByTagName("a")[0];
-        //     txtValue = a.textContent || a.innerText;
-        //     if (txtValue.toUpperCase().indexOf(filter) > -1) {
-        //         li[i].style.display = "";
-        //     } else {
-        //         li[i].style.display = "none";
-        //     }
-        // }
-      
-        // useEffect(() => {
-        //     console.log("myContainer..", myContainer.current);
-        //   });
-        const [query, setQuery] = useState("%");
+        const [query, setQuery] = useState("");
         const [Data, setData] = useState([]);
-        // setData(data);
-console.log(query)
-        // useEffect(() => {
-        //   const fetchData = async () => {
-        //     const res = await axios.get(`http://localhost:300?q=${query}`);
-        //            };
-        //   if (query.length === 0 || query.length > 2) fetchData();
-        // }, [query]);
 
-        
+        console.log(query)
+
+        const [DataPwd,setDataPwd]=useState([])
+        useEffect(()=>{async function fetchDataPwd() {
+          fetch('http://localhost:300/Products')          
+          .then(response => response.json())
+          .then(data =>{ setDataPwd(data)});
+        }
+        fetchDataPwd();}
+        ,[Data])
     return (
         <div>
                 {/* Start Main Top */}
@@ -260,11 +241,13 @@ console.log(query)
         onHide={() => setLgShow(false)}
         aria-labelledby="example-modal-sizes-title-lg"
       >
-        <Modal.Header closeButton>
-          <Modal.Title id="example-modal-sizes-title-lg ">
-       
+        <Modal.Header >
+          <Modal.Title id="example-modal-sizes-title-lg d-flex">
+          <div className="d-flex row">
+ 
 <input type="text" 
-defaultValue='%'
+className=""
+defaultValue='Search for names..'
  onChange={(e) => setQuery(e.target.value.toLowerCase())}
  
 id="myInput" 
@@ -272,7 +255,11 @@ id="myInput"
 placeholder="Search for names.." title="Type in a name"/>
 
 
+</div>
           </Modal.Title>
+          <div className="text-right  btn ">
+    <FontAwesomeIcon onClick={() => setLgShow(false)} icon={faCancel}/>
+</div>
         </Modal.Header>
         <Modal.Body>
         
@@ -281,10 +268,11 @@ placeholder="Search for names.." title="Type in a name"/>
             <table className="table table-striped table-sm">
               <thead>
                 <tr>
+                <th scope="col">Image</th>
                   <th scope="col">Name</th>
                   <th scope="col">Price</th>
                   <th scope="col">DelPrice</th>
-                  <th scope="col">InitialStock</th>
+                
                   {/* <th scope="col">
                    Remove
                   </th>
@@ -294,16 +282,19 @@ placeholder="Search for names.." title="Type in a name"/>
                 </tr>
               </thead>
               <tbody>
-              {data.products.filter((item)=>item.name.toLowerCase().includes(query)).map((x)=>
+{
+query ?
+            DataPwd.filter((item)=>item.name.toLowerCase().includes(query)).map((x)=>
                 <tr key={x._id}>
-                  <td><img src= {x.image} className="img-fluid"/>  </td>
-                  <td>{x.name}</td>
+                 <Link to={`/${x._id}`}> <td className="  " ><img src= {x.image} style={{height:'50px'}}/>  </td>
+                 </Link>  <td>{x.name}</td>
                   <td>{x.price}</td>
                   <td>{x.DelPrice}</td>
-
-              
-                  </tr>
-)}
+                  </tr> 
+) 
+: null
+}
+   
                
               </tbody>
             </table>
